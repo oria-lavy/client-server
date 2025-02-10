@@ -25,11 +25,9 @@ void StatisticsForRequest(char* buf, int fd, struct timeval arrival, struct time
 }
 
 
-// requestError(      fd,    filename,        "404",    "Not found", "OS-HW3 Server could not find this file");
 void requestError(int fd, char *cause, char *errnum, char *shortmsg, char *longmsg, struct timeval arrival, struct timeval dispatch, int thread_id, Stats stats, int file_size)
 {
    char buf[MAXLINE], body[MAXBUF];
-   //char filetype[MAXLINE];
 
    // Create the body of the error message
    sprintf(body, "<html><title>OS-HW3 Error</title>");
@@ -48,8 +46,6 @@ void requestError(int fd, char *cause, char *errnum, char *shortmsg, char *longm
    printf("%s", buf);
 
    sprintf(buf, "Content-Length: %lu\r\n", strlen(body));
-   //Rio_writen(fd, buf, strlen(buf));
-  // printf("%s", buf);
 
 
    StatisticsForRequest(buf, fd, arrival, dispatch, thread_id, stats->total_req_cnt, stats->static_cnt, stats->dynamic_cnt,0);
