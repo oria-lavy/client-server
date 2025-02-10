@@ -36,7 +36,7 @@ QUEUE create_queue()
 
 bool is_same_node(int first_fd, int second_fd)
 {
-    return first_fd == second_fd; //I think this is enough because fd is unique?
+    return first_fd == second_fd; 
 }
 
 int get_first_node_fd(QUEUE queue)
@@ -66,7 +66,6 @@ void add_to_queue(QUEUE queue, int fd, struct timeval arrival, struct timeval di
     }
     current_node->next = node_to_add;
     queue->queue_size++;
-    //queue->last = node_to_add;
     return;
 }
 void printQueue(QUEUE queue)
