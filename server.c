@@ -24,11 +24,6 @@ Algorithm alg;
 /** ALGORITHM FUNCTIONS **/
 void blockAlg(System system)
 {
-    // if (system == NULL)
-    // {
-    //     return;
-    //     //exit(1);
-    // }
     while(isSystemFull(system))
     {
         pthread_cond_wait(&producer_allowed, &mutex_lock);
@@ -77,7 +72,6 @@ void getargs(int *port, int* threads_num, int* max_num_request, Algorithm* alg, 
     if (argc < 5) {
 	fprintf(stderr, "Usage: %s <port>\n", argv[0]);
 	return;
-    //exit(1);
     }
     *port = atoi(argv[1]);
     *threads_num = atoi(argv[2]);
@@ -96,8 +90,7 @@ void getargs(int *port, int* threads_num, int* max_num_request, Algorithm* alg, 
         *alg = DROP_RANDOM;
     }
     else {
-        return;
-        //exit(1); //check if needs something else
+        return; //check if needs something else
     }
 }
 
@@ -117,27 +110,15 @@ void* consumer(void* arg){ //while1 etzel tomguy
         while (system->waiting_queue->queue_size==0) { //there are no requests waiting
             pthread_cond_wait(&consumer_allowed, &mutex_lock);
         }
-        // struct timeval time;
-        // if (gettimeofday(&time, NULL) == -1) //0 on success and -1 on failure
-        // {
-        //     return NULL;
-        //     //exit(1);
-        // }
+ 
         int first_fd = get_first_node_fd(system->waiting_queue); //I think shouldnt be null because we call consumer if the queue isnt empty
         struct timeval dispatch;
         gettimeofday(&dispatch, NULL);
-        //int first_fd = first_node->process_fd;
         struct timeval arrival = get_arrival_by_fd(system->waiting_queue, first_fd);
         remove_from_queue(system->waiting_queue, first_fd); //remove node from waiting queue.
 
         add_to_queue(system->running_queue, first_fd, arrival, dispatch); //add to running queue.
-        /*int index = 0;
-        pthread_t wanted_id = pthread_self();
-        while(index<threads_num){
-            if(threads_array[index].thread == wanted_id)
-                break;
-            index++;
-        }*/
+
         pthread_mutex_unlock(&mutex_lock);
 
 
@@ -156,7 +137,6 @@ void* consumer(void* arg){ //while1 etzel tomguy
 void* producer(System system, int port) {
 
     int listen_fd = Open_listenfd(port);
-    //printf("we are at producer, line 140 \n");
     int client_len;
     int conn_fd;
     struct sockaddr_in client_addr;
@@ -168,17 +148,11 @@ void* producer(System system, int port) {
     //printf("init \n");
 
     while(1) {
-        //printf("im in while \n");
         client_len = sizeof(client_addr);
-        //printf("line 154, while \n");
         conn_fd = accept(listen_fd, (SA*)&client_addr, (socklen_t*)&client_len);
-        //printf("after accept, while \n");
         gettimeofday(&arrival_time, NULL);
-        //printf("line 156, while \n");
         pthread_mutex_lock(&mutex_lock);
-        //printf("line 158, while \n");
         if (isSystemFull(system)) {
-            //printf("im in if \n");
             if (alg == BLOCK) {
                 blockAlg(system);
                 addRequest(system, conn_fd, arrival_time, init); //waiting q
@@ -194,7 +168,6 @@ void* producer(System system, int port) {
                 }
                 dropHeadAlg(system);
                 printQueue(system->waiting_queue);
-               // printQueue(system->running_queue);
                 addRequest(system, conn_fd, arrival_time, init); //waiting q
 
                 
@@ -209,15 +182,11 @@ void* producer(System system, int port) {
                 addRequest(system,conn_fd,arrival_time,init);
             }
         } else {
-            //printf("line 176, while \n");
             addRequest(system, conn_fd, arrival_time, init); //waiting q
         }
         pthread_cond_signal(&consumer_allowed);
         pthread_mutex_unlock(&mutex_lock);
-        
-        //Close(listen_fd);
-        //printf("end of while \n");
-        //shouldnt we close listen_fd? haomnam?!!!!!!
+
     }
     return NULL;
 }
@@ -239,72 +208,24 @@ int main(int argc, char *argv[])
     System system = systemCreate(alg, requests_max_num, threads_num);
 
 
-
-    //System system = systemCreate(BLOCK, 2, 1);
-
-//    struct timeval time;
-//    gettimeofday(&time,0);
-
-//    add_to_queue(system->waiting_queue, 1, time, time);
-//    add_to_queue(system->waiting_queue, 2, time, time);
-//    add_to_queue(system->running_queue, 3, time, time);
-//    add_to_queue(system->running_queue, 8, time, time);
-//    printf("first fd is %d \n", system->waiting_queue->head->next->process_fd);
-//    printf("second fd is %d \n", system->waiting_queue->head->next->next->process_fd);
-//    printf("third fd is %d \n", system->running_queue->head->next->process_fd);
-//    printf("4 fd is %d \n", system->running_queue->head->next->next->process_fd);
-//    remove_from_queue(system->waiting_queue, system->waiting_queue->head->next);
-//    printf("after remove, firstw fd is %d \n",  system->waiting_queue->head->next->process_fd); //should be 2
-//    remove_from_queue(system->running_queue, get_node_by_fd(system->running_queue, 8));
-//    printf("after remove, firstr fd is %d \n", system->running_queue->head->next->process_fd);
-//    printf("wsize is %d \n", system->waiting_queue->queue_size);
-//    printf("rsize is %d \n", system->running_queue->queue_size);
-//    add_to_queue(system->waiting_queue, 2022, time, time);
-//    printf("wsize after first add of 2022 is %d \n", system->waiting_queue->queue_size);
-//    add_to_queue(system->waiting_queue, 2022, time, time);
-//    printf("wsize after second add of 2022 is %d \n", system->waiting_queue->queue_size);
-//    add_to_queue(system->running_queue, 7654321, time, time);
-//    printf("rsize after first add of 7654321 is %d \n", system->running_queue->queue_size);
-//    clear_queue(system->waiting_queue);
-//    clear_queue(system->running_queue);
-//    printf("wsize is %d \n", system->waiting_queue->queue_size);
-//    printf("rsize is %d \n", system->running_queue->queue_size);
-//    destroySystem(system);
-
-
-    if(system == NULL) {
-        return -1;
-        //exit(1); ///check if needs perror
-    }
-
     ///create threads
 
     threads_array = malloc(sizeof(Thread_struct) * threads_num); //global variable
 
     if(threads_array == NULL) {
         return -1;
-        //perror("Failed to allocate\n");
-        //exit(1);
     }
     for (i = 0; i < threads_num; i++) {
         threads_array[i].stats=(Stats)malloc(sizeof(struct stats_t));
 	    struct thread_arguments args;
 	    args.system=system;
-	    //args.stats=(Stats)malloc(sizeof(struct stats_t));
         args.index=i;
         if(pthread_create(&threads_array[i].thread, NULL, &consumer, &args) != 0) {
-            //destroySystem(system);
-            //free(threads_array);
-            //exit(1);
-            //return -1;
+
         }
-        //threads_array[i].index = i;
-       // threads_array[i].stats->total_req_cnt = 0;
-       // threads_array[i].stats->dynamic_cnt = 0;
-        //threads_array[i].stats->static_cnt = 0;
+
     }
     producer(system, port);
-///printf("line 223 after producer\n");
     for (int i=0; i < threads_num; i++) {
         if (pthread_join(threads_array[i].thread, NULL) != 0) {
             destroySystem(system);
