@@ -15,12 +15,7 @@ System systemCreate(Algorithm alg, int request_max_num, int threads_num){
         return NULL;
     }
     int w_q_size;
-    // if(request_max_num - threads_num > 0){
-    //     w_q_size = request_max_num - threads_num;
-    // }
-    // else{
-    //     w_q_size = 0;
-    // }
+
     new_system->waiting_queue = create_queue();
     if(new_system->waiting_queue == NULL){
         free(new_system);
@@ -60,7 +55,6 @@ void addRequest(System system, int conn_fd, struct timeval arrival, struct timev
     if (system == NULL)
     {
         return;
-        //exit(1);
     }
     QUEUE queue_to_enter;
     if (dispatch.tv_sec == 0 && dispatch.tv_usec == 0) //didnt start to run yet
